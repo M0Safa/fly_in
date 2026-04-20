@@ -118,6 +118,7 @@ def parse_connection_line(line: str) -> Connection:
 
 
 def parse_file(filepath: str) -> Graph:
+    coordinates: list[tuple[int, int]] = []
 
     with open(filepath, "r") as f:
         lines = [line.strip() for line in f if line.strip() and not line.startswith("#")]
@@ -150,9 +151,13 @@ def parse_file(filepath: str) -> Graph:
 
                 if zone.name in graph.zones:
                     raise ValueError("Duplicate zone")
+                if (zone.x, zone.y) in coordinates:
+                    raise ValueError("Duplicate coordinate")
+                coordinates.append((zone.x, zone.y))
 
                 graph.start = zone.name
                 graph.zones[zone.name] = zone
+                
 
             elif line.startswith("end_hub:"):
 
@@ -163,6 +168,9 @@ def parse_file(filepath: str) -> Graph:
 
                 if zone.name in graph.zones:
                     raise ValueError("Duplicate zone")
+                if (zone.x, zone.y) in coordinates:
+                    raise ValueError("Duplicate coordinate")
+                coordinates.append((zone.x, zone.y))
 
                 graph.end = zone.name
                 graph.zones[zone.name] = zone
@@ -173,6 +181,9 @@ def parse_file(filepath: str) -> Graph:
 
                 if zone.name in graph.zones:
                     raise ValueError("Duplicate zone")
+                if (zone.x, zone.y) in coordinates:
+                    raise ValueError("Duplicate coordinate")
+                coordinates.append((zone.x, zone.y))
 
                 graph.zones[zone.name] = zone
 
