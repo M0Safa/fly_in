@@ -1,48 +1,8 @@
-from typing import Dict, List, Literal, Optional
-from pydantic import BaseModel, Field, validator
-
-
-class Zone(BaseModel):
-    name: str
-    x: int
-    y: int
-    zone_type: Literal["normal", "blocked", "restricted", "priority"] = "normal"
-    max_drones: int = Field(default=1, gt=0)
-    color: Optional[str] = None
-    neighbors: List[str] = []
-    current_drones: int = Field(default=0, gt=-1)
-
-    @validator("name")
-    def validate_name(cls, v: str):
-        if "-" in v or " " in v:
-            raise ValueError("Zone name cannot contain dash or space")
-        return v
-
-
-class Connection(BaseModel):
-    zone1: str
-    zone2: str
-    max_link_capacity: int = Field(default=1, gt=0)
-    current_drones: int = Field(default=0, gt=-1)
-    coming_drones: int = 0
-
-    @validator("zone1", "zone2")
-    def validate_zone_name(cls, v: str):
-        if "-" in v or " " in v:
-            raise ValueError("Zone name cannot contain dash or space")
-        return v
-
-
-class Graph(BaseModel):
-    nb_drones: int = Field(gt=0)
-    zones: Dict[str, Zone] = {}
-    connections: List[Connection] = []
-    start: Optional[str] = None
-    end: Optional[str] = None
+from models import Zone, Connection, Graph
 
 
 def parse_metadata(meta_str: str, is_hub: bool) -> dict:
-    meta = {}
+    meta: dict[str, str] = {}
 
     if not meta_str:
         return meta
@@ -50,7 +10,9 @@ def parse_metadata(meta_str: str, is_hub: bool) -> dict:
     meta_str = meta_str.strip()[1:-1]
     parts = meta_str.split()
 
-    allowed_keys = ["zone", "color", "max_drones"] if is_hub else ["max_link_capacity"]
+    allowed_keys = ["zone", "color", "max_drones"]
+    if not is_hub:
+        allowed_keys = ["max_link_capacity"]
 
     for part in parts:
         if "=" not in part:
@@ -94,7 +56,7 @@ def parse_zone_line(line: str) -> Zone:
     )
 
 
-def parse_connection_line(line: str) -> Connection:
+def parse_con_line(line: str) -> Connection:
 
     if "[" in line:
         main, meta_str = line.split("[", 1)
@@ -120,7 +82,8 @@ def parse_connection_line(line: str) -> Connection:
 def parse_file(filepath: str) -> Graph:
 
     with open(filepath, "r") as f:
-        lines = [line.strip() for line in f if line.strip() and not line.startswith("#")]
+        lines = [line.strip() for line in f
+                 if line.strip() and not line.startswith("#")]
 
     if not lines:
         raise ValueError("Empty file")
@@ -143,7 +106,7 @@ def parse_file(filepath: str) -> Graph:
 
             if line.startswith("start_hub:"):
 
-                if graph.start is not None:
+                if graph.start != "None":
                     raise ValueError("start_hub defined multiple times")
 
                 zone = parse_zone_line(line.replace("start_hub:", "").strip())
@@ -156,7 +119,7 @@ def parse_file(filepath: str) -> Graph:
 
             elif line.startswith("end_hub:"):
 
-                if graph.end is not None:
+                if graph.end != "None":
                     raise ValueError("end_hub defined multiple times")
 
                 zone = parse_zone_line(line.replace("end_hub:", "").strip())
@@ -178,7 +141,7 @@ def parse_file(filepath: str) -> Graph:
 
             elif line.startswith("connection:"):
 
-                conn = parse_connection_line(line.replace("connection:", "").strip())
+                conn = parse_con_line(line.replace("connection:", "").strip())
 
                 key = tuple(sorted([conn.zone1, conn.zone2]))
 
@@ -195,10 +158,10 @@ def parse_file(filepath: str) -> Graph:
         except Exception as e:
             raise ValueError(f"Error at line {line_num}: {line}\n{e}")
 
-    if graph.start is None:
+    if graph.start == "None":
         raise ValueError("Missing start_hub")
 
-    if graph.end is None:
+    if graph.end == "None":
         raise ValueError("Missing end_hub")
 
     for conn in graph.connections:
