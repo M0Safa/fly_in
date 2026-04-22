@@ -1,11 +1,12 @@
 PYTHON = python3
 MAIN   =fly_in.py
+MAP = "maps/easy/02_simple_fork.txt"
 
 install:
 		pip install -r requirement.txt
 
 run:
-		$(PYTHON) $(MAIN)
+		$(PYTHON) $(MAIN) $(MAP)
 
 debug:
 		$(PYTHON) -m pdb $(MAIN) $(CONFIG)

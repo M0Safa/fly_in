@@ -1,8 +1,9 @@
 from parsing import parse_file
 from models import Connection, Graph, Drone
 from utils import dijkstra, path_exists
-from my_arcade import DroneVisualizer, Drone_Sprite
+from my_arcade import DroneVisualizer
 import arcade
+import sys
 
 
 def finished(drones: list[Drone]) -> bool:
@@ -64,9 +65,11 @@ def shortest(nodes: list[str], dist: dict) -> float:
     return minn
 
 
-def main() ->  None:
+def main() -> None:
     try:
-        graph = parse_file("maps/challenger/01_the_impossible_dream.txt")
+        if len(sys.argv) != 2:
+            raise ValueError("Error: plz enter only the map path")
+        graph = parse_file(f"{sys.argv[1]}")
         if not path_exists(graph, [], graph.start):
             raise ValueError("your graph does not have a valid path")
     except Exception as e:
@@ -120,7 +123,9 @@ def main() ->  None:
             conn.current_drones = conn.coming_drones
         turn += 1
     paths = {d.id: d.visited for d in drones}
-    window = DroneVisualizer(graph, paths)
+    DroneVisualizer(graph, paths)
     arcade.run()
 
-main()
+
+if __name__ == "__main__":
+    main()
