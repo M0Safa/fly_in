@@ -1,6 +1,6 @@
 PYTHON = python3
 MAIN   =fly_in.py
-MAP = "maps/easy/02_simple_fork.txt"
+MAP = "maps/medium/03_priority_puzzle.txt"
 
 install:
 		pip install -r requirement.txt

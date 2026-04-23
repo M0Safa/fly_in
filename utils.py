@@ -32,10 +32,8 @@ def dijkstra(graph: Graph) -> dict:
                 distances[neighbor] = new_cost
                 heapq.heappush(pq, (new_cost, neighbor))
     for zon in graph.zones.values():
-        zon.neighbors.sort(key=lambda n: (
-            0 if graph.zones[n].zone_type == "priority" else 1,
-            distances.get(n, float('inf'))
-        ))
+        zon.neighbors.sort(key=lambda n: (distances.get(n, float('inf')),
+                           0 if graph.zones[n].zone_type == "priority" else 1))
     return distances
 
 

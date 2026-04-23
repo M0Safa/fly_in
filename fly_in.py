@@ -103,9 +103,8 @@ def main() -> None:
                     conn = get_connection(graph, d.zone, n_name)
                     if target.current_drones < target.max_drones:
                         if conn.current_drones < conn.max_link_capacity:
-                            if target.zone_type != "priority":
-                                if distances[n_name] - shortest_dist > 5:
-                                    continue
+                            if distances[n_name] - shortest_dist > 4:
+                                continue
                             if path_exists(graph, d.visited, n_name):
                                 best_neighbor = n_name
                                 break
