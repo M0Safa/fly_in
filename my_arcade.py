@@ -4,8 +4,8 @@ import time
 from models import Graph
 
 
-SCREEN_WIDTH = 1200
-SCREEN_HEIGHT = 800
+SCREEN_WIDTH = 2200
+SCREEN_HEIGHT = 1100
 SCREEN_TITLE = "Self-Scaling Drone Animation"
 PADDING = 100
 DRONE_SPEED = 6
@@ -90,11 +90,10 @@ class DroneVisualizer(arcade.Window):
         for name, zone in self.graph.zones.items():
             px, py = self.get_pixel_coords(name)
 
-            color = arcade.color.DARK_BLUE_GRAY
-            if zone.zone_type == "restricted":
-                color = arcade.color.RED_DEVIL
-            elif zone.zone_type == "priority":
-                color = arcade.color.GOLD
+            try:
+                color = getattr(arcade.color, zone.color.upper())
+            except Exception:
+                color = arcade.color.DARK_RED 
 
             arcade.draw_circle_filled(px, py, NODE_RADIUS, color)
             arcade.draw_text(name, px, py - 30, arcade.color.WHITE,

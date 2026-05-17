@@ -1,6 +1,6 @@
 PYTHON = python3
 MAIN   =fly_in.py
-MAP = "maps/medium/03_priority_puzzle.txt"
+MAP = "maps/challenger/01_the_impossible_dream.txt"
 
 install:
 		pip install -r requirement.txt

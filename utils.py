@@ -1,55 +1,58 @@
 import heapq
-from models import Zone, Graph
+from models import Zone, Graph, Drone
 
+class utils:
+    def zone_cost(self, zone: Zone) -> int:
+        if zone.zone_type == "restricted":
+            return 2
+        return 1
 
-def zone_cost(zone: Zone) -> int:
-    if zone.zone_type == "restricted":
-        return 2
-    return 1
+    def dijkstra(self, graph: Graph) -> dict:
 
+        distances: dict[str, float] = {}
 
-def dijkstra(graph: Graph) -> dict:
+        for z in graph.zones:
+            distances[z] = float("inf")
 
-    distances: dict[str, float] = {}
+        end: str = graph.end
+        distances[end] = 0
 
-    for z in graph.zones:
-        distances[z] = float("inf")
+        pq: list[tuple[int, str]] = []
+        heapq.heappush(pq, (0, end))
+        while pq:
 
-    end: str = graph.end
-    distances[end] = 0
+            current_cost, node = heapq.heappop(pq)
+            for neighbor in graph.zones[node].neighbors:
+                zone: Zone = graph.zones[neighbor]
+                if zone.zone_type == "blocked":
+                    continue
+                new_cost = current_cost + self.zone_cost(zone)
+                if new_cost < distances[neighbor]:
+                    distances[neighbor] = new_cost
+                    heapq.heappush(pq, (new_cost, neighbor))
+        for zon in graph.zones.values():
+            zon.neighbors.sort(key=lambda n: (distances.get(n, float('inf')),
+                            0 if graph.zones[n].zone_type == "priority" else 1))
+        return distances
 
-    pq: list[tuple[int, str]] = []
-    heapq.heappush(pq, (0, end))
-    while pq:
+    def path_exists(self, graph: Graph, visited_n: list, start: str) -> bool:
+        visited = visited_n.copy()
+        queue = [start]
 
-        current_cost, node = heapq.heappop(pq)
-        for neighbor in graph.zones[node].neighbors:
-            zone: Zone = graph.zones[neighbor]
-            if zone.zone_type == "blocked":
-                continue
-            new_cost = current_cost + zone_cost(zone)
-            if new_cost < distances[neighbor]:
-                distances[neighbor] = new_cost
-                heapq.heappush(pq, (new_cost, neighbor))
-    for zon in graph.zones.values():
-        zon.neighbors.sort(key=lambda n: (distances.get(n, float('inf')),
-                           0 if graph.zones[n].zone_type == "priority" else 1))
-    return distances
+        while queue:
+            zone = queue.pop(0)
 
+            if zone == graph.end:
+                return True
 
-def path_exists(graph: Graph, visited_n: list, start: str) -> bool:
-    visited = visited_n.copy()
-    queue = [start]
+            for n in graph.zones[zone].neighbors:
+                if n not in visited and graph.zones[n].zone_type != "blocked":
+                    visited.append(n)
+                    queue.append(n)
+        return False
 
-    while queue:
-        zone = queue.pop(0)
-
-        if zone == graph.end:
+    def finished(self, drones: list[Drone]) -> bool:
+            for drone in drones:
+                if not drone.finished:
+                    return False
             return True
-
-        for n in graph.zones[zone].neighbors:
-            if n not in visited and graph.zones[n].zone_type != "blocked":
-                visited.append(n)
-                queue.append(n)
-
-    return False
