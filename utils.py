@@ -1,6 +1,7 @@
 import heapq
 from models import Zone, Graph, Drone
 
+
 class utils:
     def zone_cost(self, zone: Zone) -> int:
         if zone.zone_type == "restricted":
@@ -32,7 +33,8 @@ class utils:
                     heapq.heappush(pq, (new_cost, neighbor))
         for zon in graph.zones.values():
             zon.neighbors.sort(key=lambda n: (distances.get(n, float('inf')),
-                            0 if graph.zones[n].zone_type == "priority" else 1))
+                               0 if
+                               graph.zones[n].zone_type == "priority" else 1))
         return distances
 
     def path_exists(self, graph: Graph, visited_n: list, start: str) -> bool:
@@ -52,7 +54,7 @@ class utils:
         return False
 
     def finished(self, drones: list[Drone]) -> bool:
-            for drone in drones:
-                if not drone.finished:
-                    return False
-            return True
+        for drone in drones:
+            if not drone.finished:
+                return False
+        return True

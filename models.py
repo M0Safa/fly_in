@@ -1,4 +1,4 @@
-from typing import Dict, List, Literal, Optional
+from typing import Dict, List, Literal
 from pydantic import BaseModel, Field, validator
 
 
@@ -9,7 +9,7 @@ class Zone(BaseModel):
     zone_type: Literal["normal", "blocked",
                        "restricted", "priority"] = "normal"
     max_drones: int = Field(default=1, gt=0)
-    color: Optional[str] = "Gray"
+    color: str = "Gray"
     neighbors: List[str] = []
     current_drones: int = Field(default=0, gt=-1)
 

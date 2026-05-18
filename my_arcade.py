@@ -93,7 +93,7 @@ class DroneVisualizer(arcade.Window):
             try:
                 color = getattr(arcade.color, zone.color.upper())
             except Exception:
-                color = arcade.color.DARK_RED 
+                color = arcade.color.DARK_RED
 
             arcade.draw_circle_filled(px, py, NODE_RADIUS, color)
             arcade.draw_text(name, px, py - 30, arcade.color.WHITE,

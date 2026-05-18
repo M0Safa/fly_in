@@ -6,7 +6,6 @@ import arcade
 import sys
 
 
-
 def main() -> None:
     par = parse()
     ut = utils()

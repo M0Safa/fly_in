@@ -1,5 +1,6 @@
 from models import Zone, Connection, Graph
 
+
 class parse:
     def parse_metadata(self, meta_str: str, is_hub: bool) -> dict:
         meta: dict[str, str] = {}
@@ -27,7 +28,6 @@ class parse:
 
         return meta
 
-
     def parse_zone_line(self, line: str) -> Zone:
 
         parts = line.split()
@@ -52,9 +52,8 @@ class parse:
             y=y,
             zone_type=meta.get("zone", "normal"),
             max_drones=int(meta.get("max_drones", 1)),
-            color=meta.get("color")
+            color=meta.get("color", "Gray")
         )
-
 
     def parse_con_line(self, line: str) -> Connection:
 
@@ -78,12 +77,10 @@ class parse:
             max_link_capacity=int(meta.get("max_link_capacity", 1))
         )
 
-
     def parse_file(self, filepath: str) -> Graph:
-
         with open(filepath, "r") as f:
             lines = [line.strip() for line in f
-                    if line.strip() and not line.startswith("#")]
+                     if line.strip() and not line.startswith("#")]
 
         if not lines:
             raise ValueError("Empty file")
@@ -109,7 +106,8 @@ class parse:
                     if graph.start != "None":
                         raise ValueError("start_hub defined multiple times")
 
-                    zone = self.parse_zone_line(line.replace("start_hub:", "").strip())
+                    zone = self.parse_zone_line(
+                           line.replace("start_hub:", "").strip())
 
                     if zone.name in graph.zones:
                         raise ValueError("Duplicate zone")
@@ -122,7 +120,8 @@ class parse:
                     if graph.end != "None":
                         raise ValueError("end_hub defined multiple times")
 
-                    zone = self.parse_zone_line(line.replace("end_hub:", "").strip())
+                    zone = self.parse_zone_line(
+                           line.replace("end_hub:", "").strip())
 
                     if zone.name in graph.zones:
                         raise ValueError("Duplicate zone")
@@ -132,7 +131,8 @@ class parse:
 
                 elif line.startswith("hub:"):
 
-                    zone = self.parse_zone_line(line.replace("hub:", "").strip())
+                    zone = self.parse_zone_line(
+                           line.replace("hub:", "").strip())
 
                     if zone.name in graph.zones:
                         raise ValueError("Duplicate zone")
@@ -141,7 +141,8 @@ class parse:
 
                 elif line.startswith("connection:"):
 
-                    conn = self.parse_con_line(line.replace("connection:", "").strip())
+                    conn = self.parse_con_line(
+                           line.replace("connection:", "").strip())
 
                     key = tuple(sorted([conn.zone1, conn.zone2]))
 
@@ -168,7 +169,7 @@ class parse:
 
             if conn.zone1 not in graph.zones or conn.zone2 not in graph.zones:
                 raise ValueError(
-                    f"Connection references unknown zone {conn.zone1}-{conn.zone2}"
+                    f"Connection unknown zone {conn.zone1}-{conn.zone2}"
                 )
             graph.zones[conn.zone1].neighbors.append(conn.zone2)
             graph.zones[conn.zone2].neighbors.append(conn.zone1)
